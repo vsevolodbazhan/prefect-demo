@@ -1,0 +1,11 @@
+# VSCode
+.vscode
+
+# mypy
+.mypy_cache
+
+# Python
+__pycache__
+
+# Data
+vaccinations
