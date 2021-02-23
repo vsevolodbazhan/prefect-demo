@@ -1,11 +1,18 @@
+from datetime import datetime, timedelta
 from io import StringIO
 
 import pandas
 import requests
 from prefect import Flow, Parameter, task
 from prefect.engine.results import LocalResult
+from prefect.schedules import IntervalSchedule
 
 VACCINATIONS_DATA_URL = 'https://github.com/owid/covid-19-data/raw/master/public/data/vaccinations/vaccinations.csv'
+
+schedule = IntervalSchedule(
+    start_date=datetime.utcnow() + timedelta(minutes=1),
+    interval=timedelta(days=1),
+)
 
 
 @task
@@ -31,7 +38,7 @@ def save_vaccinations_data(transformed_vaccination_data: pandas.DataFrame) -> st
     return transformed_vaccination_data.to_csv()
 
 
-with Flow('vaccinations') as flow:
+with Flow('vaccinations', schedule=schedule) as flow:
     vaccinations_data_url = Parameter('vaccinations_data_url', default=VACCINATIONS_DATA_URL)
 
     raw_vaccinations_data = extract_raw_vaccinations_data(vaccinations_data_url=vaccinations_data_url)
